@@ -1,65 +1,118 @@
-import Image from "next/image";
+"use client"
+import {
+  Card,
+  CardHeader,
+  CardFooter,
+  CardTitle,
+  CardAction,
+  CardDescription,
+  CardContent,
+} from "@/components/ui/card"
+import { Button, buttonVariants } from "@/components/ui/button"
+import { useEffect, useState } from "react";
+import Header from "./Header";
+
+type Mode = "pomodoro" | "short" | "long"
+type Task = {
+  id: number;
+  name: string;
+}
+
 
 export default function Home() {
+  
+  const [timeLeft, setTimeLeft] = useState(25 * 60); // minutes * seconds
+  const [isRunning, setIsRunning] = useState(false);
+  const [mode, setMode] = useState<Mode>("pomodoro")
+  const [showModal, setShowModal] = useState(false);
+  const [taskName, setTaskName] = useState("");
+  const [taskList, setTaskList] = useState<Task[]>([])
+
+  useEffect(() => {
+    if (!isRunning) return;
+    
+    const interval = setInterval(() => {
+      setTimeLeft(prevT => (prevT > 0 ? prevT - 1 : 0))
+    }, 1000)
+
+    return () => clearInterval(interval)
+  }, [isRunning])
+
+  useEffect(() => {
+    const times = {
+      pomodoro: 25 * 60,
+      short: 5 * 60,
+      long: 10 * 60
+    };
+
+    setTimeLeft(times[mode]);
+    setIsRunning(false)
+  }, [mode])
+
+  const minutes = Math.floor(timeLeft / 60);
+  const seconds = timeLeft % 60;
+
+  const formatTime = (num: number) => num.toString().padStart(2, "0");
+
+  const addTask = () => {
+    setShowModal(false);
+    setTaskList(prev => [...prev, {id: Date.now(), name: taskName}])
+    setTaskName("")
+  }
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+   <div className={`duration-400 ease-in flex flex-col min-h-screen flex-1 items-center ${mode === "pomodoro" ? "bg-fuchsia-300" : mode === "short" ? "bg-green-300" : mode ==="long" ? "bg-blue-300": "bg-gray-100"}`}>
+    <Header/>
+      <Card className="w-1/3 h-fit bg-white/50">
+        <CardHeader className="flex flex-row items-center justify-between text-xl">
+          <CardTitle className={`p-2 cursor-pointer rounded duration-400 ease-in text-gray-800 ${mode === "pomodoro" ? "bg-fuchsia-400 font-bold text-black" : ""}`} onClick={() => setMode("pomodoro")}>Pomodoro</CardTitle>
+          <CardTitle className={`p-2 cursor-pointer rounded duration-400 ease-in text-gray-800 ${mode === "short" ? "bg-green-400 font-bold text-black" : ""}`} onClick={() => setMode("short")}>Short break</CardTitle>
+          <CardTitle className={`p-2 cursor-pointer rounded duration-400 ease-in text-gray-800 ${mode === "long" ? "bg-blue-400 font-bold text-black" : ""}`} onClick={() => setMode("long")}>Long break</CardTitle>
+        </CardHeader>
+        <CardContent className="flex flex-col items-center">
+          <CardDescription className="text-8xl bold text-black">
+          {formatTime(minutes)}:{formatTime(seconds)}
+          </CardDescription>
+          <CardAction className="mb-2 mt-6">
+            <Button className="text-2xl py-6 px-20 cursor-pointer" onClick={() => setIsRunning(prevI => !prevI)}>{isRunning ? "Stop" : "Start"}</Button>
+          </CardAction>
+        </CardContent>
+      </Card>
+      <p>#1</p>
+      <h4>nextJS</h4>
+      <div className="flex flex-row justify-between w-1/3 border-b-2 border-black">
+        <h4>Tasks</h4>
+        <button>...</button>
+      </div>
+      {taskList && (
+        taskList.map((task) => (
+          <Card key={task.id} className="flex flex-row w-1/3 justify-between items-center mt-4 cursor-pointer py-3">
+            <CardHeader className="flex items-center">
+              <CardTitle>{task.name}</CardTitle>
+            </CardHeader>
+            <CardContent className="flex flex-row gap-4 items-center">
+              <CardDescription>1/5(placeholder)</CardDescription>
+              <CardAction>
+                <Button className="cursor-pointer">...(future edit button(s))</Button>
+              </CardAction>
+            </CardContent>
+          </Card>
+        ))
+      )}
+      <Card className="flex flex-row w-1/3 justify-center items-center mt-4 cursor-pointer border-dashed border-4 border-black/50 bg-white/20 py-3">
+        <CardHeader className="flex items-center justify-center w-full">
+          <CardTitle onClick={() => setShowModal(true)}>Add task</CardTitle>
+        </CardHeader>
+      </Card>
+      {showModal && (
+        <div className="fixed flex inset-0 justify-center items-center bg-black/50 z-20">
+          <div className={`flex flex-col rounded-xl p-4 border-4 bg-white w-1/3 h-1/3 ${mode === "pomodoro" ? "border-fuchsia-500/50" : mode === "short" ? "border-green-500/50" : mode ==="long" ? "border-blue-500/50": "bg-gray-100"}`}>
+            <input className="w-fit m-2 text-xl p-1 rounded border border-black/50" type="text" placeholder="Enter your task here" value={taskName} onChange={(e) => setTaskName(e.target.value)}/>
+            <Button className="text-xl py-2 px-8 cursor-pointer w-fit m-2" onClick={() => setShowModal(false)}>Cancel</Button>
+            <Button variant={"secondary"} className="text-xl py-2 px-8 border-black border-2 cursor-pointer w-fit m-2" onClick={addTask}>Save</Button>
+          </div>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
-    </div>
+      )}
+   </div>
   );
 }
