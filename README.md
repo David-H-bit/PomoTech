@@ -24,13 +24,13 @@ This is a personal learning project to explore and practice:
 - Task list management (add and display tasks)
 - Dynamic background colors based on active mode
 - Modal interface for adding new tasks
+- Input validation
 
 ### Work in Progress
 This project is a work in progress and is not done yet, here are some of the missing parts:
 - Preferences and Settings route not implemented
 - Task editing and deletion
 - Pomodoro completion tracking
-- Input validation
 - Responsive design
 - Additional quality-of-life improvements
 
