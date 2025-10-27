@@ -16,7 +16,8 @@ type Mode = "pomodoro" | "short" | "long"
 type Task = {
   id: number;
   name: string;
-  pomodoros: number
+  pomodoros: number;
+  pomodorosFinished: number;
 }
 
 export default function Home() {
@@ -28,7 +29,10 @@ export default function Home() {
   const [taskName, setTaskName] = useState("");
   const [taskList, setTaskList] = useState<Task[]>([])
   const [pomodoros, setPomodoros] = useState(1);
-  const [pomodorosDone, setPomodorosDone] = useState(0);
+  const [pomodorosDone, setPomodorosDone] = useState(0); // This is for the TOTAL pomodoros done for short/long functionality, not task specific
+  const [isEditing, setIsEditing] = useState(false);
+  const [editTaskId, setEditTaskId] = useState<number | null>(null)
+  const [selectedTaskId, setSelectedTaskId] = useState<number | null>(null) // This is for the TASK SPECIFIC pomodoros
 
   useEffect(() => {
     if (!isRunning) return;
@@ -40,6 +44,7 @@ export default function Home() {
     if (timeLeft === 0){
       setIsRunning(false)
       if (mode === "pomodoro"){
+        setTaskList(taskList.map(task => task.id === selectedTaskId ? {...task, pomodorosFinished: task.pomodorosFinished === task.pomodoros ? task.pomodorosFinished : task.pomodorosFinished + 1} : task))
         setPomodorosDone((prev) => {
           if (prev === 3){
             setMode("long")
@@ -72,21 +77,58 @@ export default function Home() {
 
   const formatTime = (num: number) => num.toString().padStart(2, "0");
 
+  const openAddModal = () => {
+    setIsEditing(false)
+    setShowModal(true)
+  }
+
   const addTask = () => {
     if (taskName.trim().length === 0){
       window.alert("Task name cannot be 0 characters");
       return
-    } 
+    }
+    if (isEditing && setEditTaskId !== null){
+      setTaskList((prev) => 
+        prev.map(task => task.id === editTaskId ? {...task, name: taskName , pomodoros: pomodoros} : task)
+      )
+    } else {
+      setTaskList(prev => [...prev, {id: Date.now(), name: taskName, pomodoros: pomodoros, pomodorosFinished: 0}])
+    }
+
     setShowModal(false);
-    setTaskList(prev => [...prev, {id: Date.now(), name: taskName, pomodoros: pomodoros}])
-    setTaskName("")
-    setPomodoros(1)
+    setIsEditing(false);
+    setEditTaskId(null);
+    setTaskName("");
+    setPomodoros(1);
   }
 
   const cancelTask = () => {
     setShowModal(false)
     setTaskName("")
     setPomodoros(1)
+  }
+
+  const editTask = (id: number) => {
+    const selectedTask = taskList.find((task) => id === task.id)
+    if (!selectedTask) return;
+    setTaskName(selectedTask.name)
+    setPomodoros(selectedTask.pomodoros)
+    setEditTaskId(id)
+    setIsEditing(true)
+    setShowModal(true)
+  }
+
+  const deleteTask = (id: number) => {
+    setTaskList(prev => prev.filter(task => task.id !== id))
+  }
+
+  const selectTask = (id: number) => {
+    const selectedTask = taskList.find((task) => id === task.id)
+    if(selectedTask!.pomodorosFinished >= selectedTask!.pomodoros){
+      return
+    } else {
+      setSelectedTaskId(id)
+    }
   }
 
   return (
@@ -108,30 +150,28 @@ export default function Home() {
           </CardAction>
         </CardContent>
       </Card>
-      <p>#1</p>
-      <h4>nextJS</h4>
-      <div className="flex flex-row justify-between w-1/3 border-b-2 border-black">
+      <div className="flex flex-row justify-between w-1/3 border-b-2 border-black mt-12">
         <h4>Tasks</h4>
-        <button>...</button>
+        <button></button> 
       </div>
       {taskList && (
         taskList.map((task) => (
-          <Card key={task.id} className="flex flex-row w-1/3 justify-between items-center mt-4 cursor-pointer py-3">
+          <Card onClick={() => selectTask(task.id)} key={task.id} className={`flex flex-row w-1/3 justify-between items-center mt-4 cursor-pointer py-3 ${selectedTaskId === task.id ? "border-l-4 border-l-black" : ""}`}>
             <CardHeader className="flex items-center">
               <CardTitle>{task.name}</CardTitle>
             </CardHeader>
             <CardContent className="flex flex-row gap-4 items-center">
-              <CardDescription className="text-xl text-black">0/{task.pomodoros}</CardDescription>
+              <CardDescription className="text-xl text-black">{task.pomodorosFinished}/{task.pomodoros}</CardDescription>
               <CardAction className="flex flex-row gap-4">
-                <Button className="cursor-pointer">Edit</Button>
-                <Button className="cursor-pointer">Delete</Button>
+                <Button onClick={() => editTask(task.id)} className="cursor-pointer">Edit</Button>
+                <Button onClick={() => deleteTask(task.id)} className="cursor-pointer">Delete</Button>
               </CardAction>
             </CardContent>
           </Card>
         ))
       )}
       <Card className="flex flex-row w-1/3 justify-center items-center mt-4 cursor-pointer border-dashed border-4 border-black/50 bg-white/20 py-3">
-        <CardHeader onClick={() => setShowModal(true)} className="flex items-center justify-center w-full">
+        <CardHeader onClick={openAddModal} className="flex items-center justify-center w-full">
           <CardTitle>Add task</CardTitle>
         </CardHeader>
       </Card>
