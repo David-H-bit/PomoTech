@@ -27,13 +27,11 @@ This is a personal learning project to explore and practice:
 - Input validation
 - Task editing and deletion
 - Pomodoro completion tracking
-- Preferences tab
+- Preferences tab and settings route
 
 ### Work in Progress
 This project is a work in progress and is not done yet, here are some of the missing parts:
-- Settings route not implemented
-- Responsive design
-- Additional quality-of-life improvements
+- Responsive design, UX/UI design and additional quality-of-life improvements
 
 ## Technologies Used
 

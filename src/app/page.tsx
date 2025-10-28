@@ -9,9 +9,9 @@ import {
   CardContent,
 } from "@/components/ui/card"
 import { Button, buttonVariants } from "@/components/ui/button"
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Header from "./Header";
-import { useColorContext } from "./ColorContext";
+import { useAppContext } from "./AppContext";
 import Color from "color";
 
 type Mode = "pomodoro" | "short" | "long"
@@ -35,7 +35,8 @@ export default function Home() {
   const [isEditing, setIsEditing] = useState(false);
   const [editTaskId, setEditTaskId] = useState<number | null>(null)
   const [selectedTaskId, setSelectedTaskId] = useState<number | null>(null) // This is for the TASK SPECIFIC pomodoros
-  const { color1, color2, color3, setColor1, setColor2, setColor3 } = useColorContext();
+  const { color1, color2, color3, transparency, pomodoroTime, shortTime, longTime, selectedAudio, setColor1, setColor2, setColor3, setTransparency, setPomodoroTime, setLongTime, setShortTime } = useAppContext();
+  const audioRef = useRef(new Audio(selectedAudio));
 
   useEffect(() => {
     if (!isRunning) return;
@@ -45,6 +46,8 @@ export default function Home() {
     }, 1000)
 
     if (timeLeft === 0){
+      audioRef.current.src = selectedAudio;
+      audioRef.current.play();
       setIsRunning(false)
       if (mode === "pomodoro"){
         setTaskList(taskList.map(task => task.id === selectedTaskId ? {...task, pomodorosFinished: task.pomodorosFinished === task.pomodoros ? task.pomodorosFinished : task.pomodorosFinished + 1} : task))
@@ -66,9 +69,9 @@ export default function Home() {
 
   useEffect(() => {
     const times = {
-      pomodoro: 25 * 60,
-      short: 5 * 60,
-      long: 10 * 60
+      pomodoro: pomodoroTime,
+      short: shortTime,
+      long: longTime
     };
 
     setTimeLeft(times[mode]);
@@ -139,12 +142,12 @@ export default function Home() {
     style={{
       backgroundColor:
         mode === "pomodoro"
-          ? Color(color1).alpha(0.7).rgb().string()
+          ? Color(color1).alpha(transparency).rgb().string()
           : mode === "short"
-          ? Color(color2).alpha(0.7).rgb().string()
+          ? Color(color2).alpha(transparency).rgb().string()
           : mode === "long"
-          ? Color(color3).alpha(0.7).rgb().string()
-          : Color(color1).alpha(0.7).rgb().string(),
+          ? Color(color3).alpha(transparency).rgb().string()
+          : Color(color1).alpha(transparency).rgb().string(),
     }}
     className={`duration-400 ease-in flex flex-col min-h-screen flex-1 items-center `}
   >
@@ -152,21 +155,21 @@ export default function Home() {
     <Card className="w-1/3 h-fit bg-white/50">
       <CardHeader className="flex flex-row items-center justify-between text-xl">
         <CardTitle
-          style={{backgroundColor: mode === "pomodoro" ? Color(color1).alpha(0.7).rgb().string() : undefined}}
+          style={{backgroundColor: mode === "pomodoro" ? Color(color1).alpha(transparency).rgb().string() : undefined}}
           className={`p-2 cursor-pointer rounded duration-400 ease-in text-gray-800`}
           onClick={() => setMode("pomodoro")}
         >
           Pomodoro
         </CardTitle>
         <CardTitle
-          style={{backgroundColor: mode === "short" ? Color(color2).alpha(0.7).rgb().string() : undefined}}
+          style={{backgroundColor: mode === "short" ? Color(color2).alpha(transparency).rgb().string() : undefined}}
           className={`p-2 cursor-pointer rounded duration-400 ease-in text-gray-800`}
           onClick={() => setMode("short")}
         >
           Short break
         </CardTitle>
         <CardTitle
-        style={{backgroundColor: mode === "long" ? Color(color3).alpha(0.7).rgb().string() : undefined}}
+        style={{backgroundColor: mode === "long" ? Color(color3).alpha(transparency).rgb().string() : undefined}}
           className={`p-2 cursor-pointer rounded duration-400 ease-in text-gray-800`}
           onClick={() => setMode("long")}
         >
