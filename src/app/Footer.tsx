@@ -9,7 +9,7 @@ export default function Footer() {
             Stay Focused, Get More Done
           </h2>
           <p className="text-gray-600">
-            An online Pomodoro timer to boost your productivity
+            An online Pomodoro timer - Inspired by pomofocus.io — Built as a personal project.
           </p>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">

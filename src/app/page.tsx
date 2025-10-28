@@ -11,6 +11,8 @@ import {
 import { Button, buttonVariants } from "@/components/ui/button"
 import { useEffect, useState } from "react";
 import Header from "./Header";
+import { useColorContext } from "./ColorContext";
+import Color from "color";
 
 type Mode = "pomodoro" | "short" | "long"
 type Task = {
@@ -33,6 +35,7 @@ export default function Home() {
   const [isEditing, setIsEditing] = useState(false);
   const [editTaskId, setEditTaskId] = useState<number | null>(null)
   const [selectedTaskId, setSelectedTaskId] = useState<number | null>(null) // This is for the TASK SPECIFIC pomodoros
+  const { color1, color2, color3, setColor1, setColor2, setColor3 } = useColorContext();
 
   useEffect(() => {
     if (!isRunning) return;
@@ -132,66 +135,165 @@ export default function Home() {
   }
 
   return (
-   <div className={`duration-400 ease-in flex flex-col min-h-screen flex-1 items-center ${mode === "pomodoro" ? "bg-fuchsia-300" : mode === "short" ? "bg-green-300" : mode ==="long" ? "bg-blue-300": "bg-gray-100"}`}>
-    <Header/>
-      <Card className="w-1/3 h-fit bg-white/50">
-        <CardHeader className="flex flex-row items-center justify-between text-xl">
-          <CardTitle className={`p-2 cursor-pointer rounded duration-400 ease-in text-gray-800 ${mode === "pomodoro" ? "bg-fuchsia-400 font-bold text-black" : ""}`} onClick={() => setMode("pomodoro")}>Pomodoro</CardTitle>
-          <CardTitle className={`p-2 cursor-pointer rounded duration-400 ease-in text-gray-800 ${mode === "short" ? "bg-green-400 font-bold text-black" : ""}`} onClick={() => setMode("short")}>Short break</CardTitle>
-          <CardTitle className={`p-2 cursor-pointer rounded duration-400 ease-in text-gray-800 ${mode === "long" ? "bg-blue-400 font-bold text-black" : ""}`} onClick={() => setMode("long")}>Long break</CardTitle>
-        </CardHeader>
-        <CardContent className="flex flex-col items-center">
-          <CardDescription className="text-8xl bold text-black">
+  <div
+    style={{
+      backgroundColor:
+        mode === "pomodoro"
+          ? Color(color1).alpha(0.7).rgb().string()
+          : mode === "short"
+          ? Color(color2).alpha(0.7).rgb().string()
+          : mode === "long"
+          ? Color(color3).alpha(0.7).rgb().string()
+          : Color(color1).alpha(0.7).rgb().string(),
+    }}
+    className={`duration-400 ease-in flex flex-col min-h-screen flex-1 items-center `}
+  >
+    <Header />
+    <Card className="w-1/3 h-fit bg-white/50">
+      <CardHeader className="flex flex-row items-center justify-between text-xl">
+        <CardTitle
+          style={{backgroundColor: mode === "pomodoro" ? Color(color1).alpha(0.7).rgb().string() : undefined}}
+          className={`p-2 cursor-pointer rounded duration-400 ease-in text-gray-800`}
+          onClick={() => setMode("pomodoro")}
+        >
+          Pomodoro
+        </CardTitle>
+        <CardTitle
+          style={{backgroundColor: mode === "short" ? Color(color2).alpha(0.7).rgb().string() : undefined}}
+          className={`p-2 cursor-pointer rounded duration-400 ease-in text-gray-800`}
+          onClick={() => setMode("short")}
+        >
+          Short break
+        </CardTitle>
+        <CardTitle
+        style={{backgroundColor: mode === "long" ? Color(color3).alpha(0.7).rgb().string() : undefined}}
+          className={`p-2 cursor-pointer rounded duration-400 ease-in text-gray-800`}
+          onClick={() => setMode("long")}
+        >
+          Long break
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="flex flex-col items-center">
+        <CardDescription className="text-8xl bold text-black">
           {formatTime(minutes)}:{formatTime(seconds)}
-          </CardDescription>
-          <CardAction className="mb-2 mt-6 flex justify-center items-center relative">
-            <Button className="text-2xl py-6 px-20 cursor-pointer" onClick={() => setIsRunning(prevI => !prevI)}>{isRunning ? "Stop" : "Start"}</Button>
-            <Button onClick={() => setTimeLeft(0)} className={`absolute -right-20 duration-300 bg-transparent hover:bg-black/20 ${isRunning ? "opacity-100" : "opacity-0"}`}><img src="/fast-forward-button-svgrepo-com.svg" alt="Fast forward button" className="w-6"/></Button>
-          </CardAction>
-        </CardContent>
-      </Card>
-      <div className="flex flex-row justify-between w-1/3 border-b-2 border-black mt-12">
-        <h4>Tasks</h4>
-        <button></button> 
-      </div>
-      {taskList && (
-        taskList.map((task) => (
-          <Card onClick={() => selectTask(task.id)} key={task.id} className={`flex flex-row w-1/3 justify-between items-center mt-4 cursor-pointer py-3 ${selectedTaskId === task.id ? "border-l-4 border-l-black" : ""}`}>
-            <CardHeader className="flex items-center">
-              <CardTitle>{task.name}</CardTitle>
-            </CardHeader>
-            <CardContent className="flex flex-row gap-4 items-center">
-              <CardDescription className="text-xl text-black">{task.pomodorosFinished}/{task.pomodoros}</CardDescription>
-              <CardAction className="flex flex-row gap-4">
-                <Button onClick={() => editTask(task.id)} className="cursor-pointer">Edit</Button>
-                <Button onClick={() => deleteTask(task.id)} className="cursor-pointer">Delete</Button>
-              </CardAction>
-            </CardContent>
-          </Card>
-        ))
-      )}
-      <Card className="flex flex-row w-1/3 justify-center items-center mt-4 cursor-pointer border-dashed border-4 border-black/50 bg-white/20 py-3">
-        <CardHeader onClick={openAddModal} className="flex items-center justify-center w-full">
-          <CardTitle>Add task</CardTitle>
-        </CardHeader>
-      </Card>
-      {showModal && (
-        <div className="fixed flex inset-0 justify-center items-center bg-black/50 z-20">
-          <div className={`relative flex flex-col rounded-xl p-4 border-4 bg-white w-1/3 h-1/3 ${mode === "pomodoro" ? "border-fuchsia-500/50" : mode === "short" ? "border-green-500/50" : mode ==="long" ? "border-blue-500/50": "bg-gray-100"}`}>
-            <input className="w-fit m-2 text-xl p-1 mb-6 rounded border border-black/50" type="text" placeholder="Enter your task here" value={taskName} onChange={(e) => setTaskName(e.target.value)}/>
-            <h4 className="ml-2">Pomodoros amount</h4>
-            <div className="flex flex-row gap-4 items-center">
-              <input className="appearance-none [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:m-0 [&::-webkit-outer-spin-button]:m-0 [-moz-appearance:textfield] border rounded px-2 py-1 w-12 m-2 text-xl p-1 border-black/50" placeholder="1" type="number" value={pomodoros} min={1} max={99} onChange={e => setPomodoros(Number(e.target.value) === 1 ? 1 : Number(e.target.value))}/>
-              <Button onClick={() => setPomodoros(prev => prev + 1)}><img src="/up-arrow-svgrepo-com.svg" alt="up arrow" className="w-4"/></Button>
-              <Button onClick={() => setPomodoros(pomodoros === 1 ? 1 : prev => prev - 1)}><img src="/down-arrow-svgrepo-com.svg" alt="up arrow" className="w-4" /></Button>
-            </div>
-            <div className="absolute flex flex-row justify-between bottom-0">
-              <Button className="text-xl py-2 px-8 cursor-pointer w-fit m-2" onClick={cancelTask}>Cancel</Button>
-              <Button variant={"secondary"} className="text-xl py-2 px-8 border-black border-2 cursor-pointer w-fit m-2" onClick={addTask}>Save</Button>
-            </div>
+        </CardDescription>
+        <CardAction className="mb-2 mt-6 flex justify-center items-center relative">
+          <Button
+            className="text-2xl py-6 px-20 cursor-pointer"
+            onClick={() => setIsRunning((prevI) => !prevI)}
+          >
+            {isRunning ? "Stop" : "Start"}
+          </Button>
+          <Button
+            onClick={() => setTimeLeft(0)}
+            className={`absolute -right-20 duration-300 bg-transparent hover:bg-black/20 ${
+              isRunning ? "opacity-100" : "opacity-0"
+            }`}
+          >
+            <img
+              src="/fast-forward-button-svgrepo-com.svg"
+              alt="Fast forward button"
+              className="w-6"
+            />
+          </Button>
+        </CardAction>
+      </CardContent>
+    </Card>
+    <div className="flex flex-row justify-between w-1/3 border-b-2 border-black mt-12">
+      <h4>Tasks</h4>
+      <button></button>
+    </div>
+    {taskList &&
+      taskList.map((task) => (
+        <Card
+          onClick={() => selectTask(task.id)}
+          key={task.id}
+          className={`flex flex-row w-1/3 justify-between items-center mt-4 cursor-pointer py-3 ${
+            selectedTaskId === task.id ? "border-l-4 border-l-black" : ""
+          }`}
+        >
+          <CardHeader className="flex items-center">
+            <CardTitle>{task.name}</CardTitle>
+          </CardHeader>
+          <CardContent className="flex flex-row gap-4 items-center">
+            <CardDescription className="text-xl text-black">
+              {task.pomodorosFinished}/{task.pomodoros}
+            </CardDescription>
+            <CardAction className="flex flex-row gap-4">
+              <Button onClick={() => editTask(task.id)} className="cursor-pointer">
+                Edit
+              </Button>
+              <Button onClick={() => deleteTask(task.id)} className="cursor-pointer">
+                Delete
+              </Button>
+            </CardAction>
+          </CardContent>
+        </Card>
+      ))}
+    <Card className="flex flex-row w-1/3 justify-center items-center mt-4 cursor-pointer border-dashed border-4 border-black/50 bg-white/20 py-3">
+      <CardHeader onClick={openAddModal} className="flex items-center justify-center w-full">
+        <CardTitle>Add task</CardTitle>
+      </CardHeader>
+    </Card>
+    {showModal && (
+      <div className="fixed flex inset-0 justify-center items-center bg-black/50 z-20">
+        <div
+          className={`relative flex flex-col rounded-xl p-4 border-4 bg-white w-1/3 h-1/3 ${
+            mode === "pomodoro"
+              ? `border-[${Color(color1).darken(0.2).hex()}]/50`
+              : mode === "short"
+              ? `border-[${Color(color2).darken(0.2).hex()}]/50`
+              : mode === "long"
+              ? `border-[${Color(color3).darken(0.2).hex()}]/50`
+              : "bg-gray-100"
+          }`}
+        >
+          <input
+            className="w-fit m-2 text-xl p-1 mb-6 rounded border border-black/50"
+            type="text"
+            placeholder="Enter your task here"
+            value={taskName}
+            onChange={(e) => setTaskName(e.target.value)}
+          />
+          <h4 className="ml-2">Pomodoros amount</h4>
+          <div className="flex flex-row gap-4 items-center">
+            <input
+              className="appearance-none [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:m-0 [&::-webkit-outer-spin-button]:m-0 [-moz-appearance:textfield] border rounded px-2 py-1 w-12 m-2 text-xl p-1 border-black/50"
+              placeholder="1"
+              type="number"
+              value={pomodoros}
+              min={1}
+              max={99}
+              onChange={(e) =>
+                setPomodoros(Number(e.target.value) === 1 ? 1 : Number(e.target.value))
+              }
+            />
+            <Button onClick={() => setPomodoros((prev) => prev + 1)}>
+              <img src="/up-arrow-svgrepo-com.svg" alt="up arrow" className="w-4" />
+            </Button>
+            <Button
+              onClick={() =>
+                setPomodoros(pomodoros === 1 ? 1 : (prev) => prev - 1)
+              }
+            >
+              <img src="/down-arrow-svgrepo-com.svg" alt="up arrow" className="w-4" />
+            </Button>
+          </div>
+          <div className="absolute flex flex-row justify-between bottom-0">
+            <Button className="text-xl py-2 px-8 cursor-pointer w-fit m-2" onClick={cancelTask}>
+              Cancel
+            </Button>
+            <Button
+              variant={"secondary"}
+              className="text-xl py-2 px-8 border-black border-2 cursor-pointer w-fit m-2"
+              onClick={addTask}
+            >
+              Save
+            </Button>
           </div>
         </div>
-      )}
-   </div>
-  );
+      </div>
+    )}
+  </div>
+);
 }

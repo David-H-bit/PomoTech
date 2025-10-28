@@ -25,12 +25,13 @@ This is a personal learning project to explore and practice:
 - Dynamic background colors based on active mode
 - Modal interface for adding new tasks
 - Input validation
+- Task editing and deletion
+- Pomodoro completion tracking
+- Preferences tab
 
 ### Work in Progress
 This project is a work in progress and is not done yet, here are some of the missing parts:
-- Preferences and Settings route not implemented
-- Task editing and deletion
-- Pomodoro completion tracking
+- Settings route not implemented
 - Responsive design
 - Additional quality-of-life improvements
 
