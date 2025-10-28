@@ -36,7 +36,12 @@ export default function Home() {
   const [editTaskId, setEditTaskId] = useState<number | null>(null)
   const [selectedTaskId, setSelectedTaskId] = useState<number | null>(null) // This is for the TASK SPECIFIC pomodoros
   const { color1, color2, color3, transparency, pomodoroTime, shortTime, longTime, selectedAudio, setColor1, setColor2, setColor3, setTransparency, setPomodoroTime, setLongTime, setShortTime } = useAppContext();
-  const audioRef = useRef(new Audio(selectedAudio));
+  const audioRef = useRef<any>(null) // TypeScript thinks Audio is a runtime value, not just a type, so using any here is 'okay'
+
+  useEffect(() => {
+    if (typeof window === "undefined") return; // make sure we're on client
+    audioRef.current = new Audio(selectedAudio);
+  }, [selectedAudio])
 
   useEffect(() => {
     if (!isRunning) return;
@@ -46,8 +51,10 @@ export default function Home() {
     }, 1000)
 
     if (timeLeft === 0){
-      audioRef.current.src = selectedAudio;
-      audioRef.current.play();
+      if (audioRef.current) {
+        audioRef.current.src = selectedAudio;
+        audioRef.current.play();
+      }
       setIsRunning(false)
       if (mode === "pomodoro"){
         setTaskList(taskList.map(task => task.id === selectedTaskId ? {...task, pomodorosFinished: task.pomodorosFinished === task.pomodoros ? task.pomodorosFinished : task.pomodorosFinished + 1} : task))

@@ -2,12 +2,17 @@
 import Header from "../Header";
 import { useAppContext } from "../AppContext";
 import Color from "color";
-import { useRef } from "react";
+import { useEffect, useRef } from "react";
 
 export default function Settings() {
 
     const { color1, pomodoroTime, longTime, shortTime, transparency, audioOneUrl, audioTwoUrl, audioThreeUrl, selectedAudio, setPomodoroTime, setLongTime, setShortTime, setSelectedAudio} = useAppContext();
-    const audioRef = useRef(new Audio(selectedAudio));
+    const audioRef = useRef<any>(null)
+
+    useEffect(() => {
+        if (typeof window === "undefined") return; // make sure we're on client
+        audioRef.current = new Audio(selectedAudio);
+      }, [selectedAudio])
 
     const selectAudio = (audio: string) => {
       const newAudio = audio;
