@@ -32,6 +32,7 @@ This is a personal learning project to explore and practice:
 ### Work in Progress
 This project is a work in progress and is not done yet, here are some of the missing parts:
 - Responsive design, UX/UI design and additional quality-of-life improvements
+- Local Storage does not work
 
 ## Technologies Used
 
