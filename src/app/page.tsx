@@ -244,8 +244,8 @@ export default function Home() {
           </CardContent>
         </Card>
       ))}
-    <Card className="flex flex-row w-1/3 justify-center items-center mt-4 cursor-pointer border-dashed border-4 border-black/50 bg-white/20 py-3">
-      <CardHeader onClick={openAddModal} className="flex items-center justify-center w-full">
+    <Card onClick={openAddModal} className="flex flex-row w-1/3 justify-center items-center mt-4 cursor-pointer border-dashed border-4 border-black/50 bg-white/20 py-3">
+      <CardHeader className="flex items-center justify-center w-full">
         <CardTitle>Add task</CardTitle>
       </CardHeader>
     </Card>
