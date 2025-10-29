@@ -30,9 +30,9 @@ This is a personal learning project to explore and practice:
 - Preferences tab and settings route
 
 ### Work in Progress
-This project is a work in progress and is not done yet, here are some of the missing parts:
-- Responsive design, UX/UI design and additional quality-of-life improvements
+This project is a work in progress and is not done yet:
 - Local Storage does not work
+- Settings are pretty limited for now
 
 ## Technologies Used
 
