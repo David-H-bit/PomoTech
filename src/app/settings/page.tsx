@@ -48,7 +48,7 @@ export default function Settings() {
           <ul>
             <li className="flex flex-row w-1/2 justify-between mb-2">
               <p>Alert sound</p>
-              <select name="alertSoundMenu" id="alertSoundMenu" value={selectedAudio} onChange={(e) => selectAudio(e.target.value)}>
+              <select name="alertSoundMenu" id="alertSoundMenu" value={selectedAudio} onChange={(e) => selectAudio(e.target.value)} className="border border-black rounded px-1 bg-white/30">
                 <option value={audioOneUrl}>Audio 1</option>
                 <option value={audioTwoUrl}>Audio 2</option>
                 <option value={audioThreeUrl}>Audio 3</option>

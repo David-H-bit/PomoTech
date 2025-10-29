@@ -29,7 +29,7 @@ type AppContextType = {
 
 const AppContext = createContext<AppContextType | undefined>(undefined)
 
-export function ColorProvider({children} : {children: ReactNode}){
+export function AppProvider({children} : {children: ReactNode}){
     const [color1, setColor1] = useState("#FF0000");
     const [color2, setColor2] = useState("#00FF00");
     const [color3, setColor3] = useState("#0000FF");

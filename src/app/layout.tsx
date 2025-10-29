@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import Footer from "./Footer";    
-import { ColorProvider } from "./AppContext"; 
+import { AppProvider } from "./AppContext"; 
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -16,7 +16,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "PomoTech",
-  description: "A simple timer that used the Pomodoro technique",
+  description: "A simple timer that uses the Pomodoro technique",
 };
 
 export default function RootLayout({
@@ -27,10 +27,10 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-        <ColorProvider>
+        <AppProvider>
           {children}
           <Footer></Footer>
-        </ColorProvider>
+        </AppProvider>
       </body>
     </html>
   );
