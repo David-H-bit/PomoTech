@@ -11,10 +11,11 @@ export default function Header() {
   return (
     <div className="flex justify-center pb-6 w-full">
         <nav className="flex flex-row justify-between p-4 border-b border-black gap-8 w-1/2">
-            <Link href={"/"} className="flex flex-row items-center gap-2"><img src="/timer-time-second-minute-svgrepo-com.svg" alt="Logo image/Home link" className="h-10"/><p className="text-xl">PomoTech</p></Link>
+            <Link href={"/"} className="flex flex-row items-center gap-2 font-medium text-lg"><img src="/timer-time-second-minute-svgrepo-com.svg" alt="Logo image/Home link" className="h-10"/><p className="text-xl">PomoTech</p></Link>
             <div className="flex flex-row justify-center items-center gap-8">
-                <Link href={"/settings"} className="">Settings</Link>
-                <button onClick={() => setTabActive(prev => !prev)} className="cursor-pointer">Preferences</button>
+                <Link className="font-medium text-lg cursor-pointer rounded p-1 duration-200 hover:bg-black/20" href={"/settings"}>Settings</Link>
+                <button onClick={() => setTabActive(prev => !prev)} className="cursor-pointer font-medium text-lg rounded p-1 duration-200 hover:bg-black/20">Preferences</button>
+                <a className="flex flex-row justify-center items-center gap-1 font-medium text-lg cursor-pointer rounded p-1 duration-200 hover:bg-black/20" href="https://github.com/David-H-bit" target="_blank"><img src="github-142-svgrepo-com.svg" alt="github logo" className="h-6 w-6"/>Github</a>
             </div>
         </nav>
         <div className={`absolute flex flex-col text-2xl p-4 justify-center rounded bg-white/25 border-2 border-black ${tabActive ? "opacity-100 translate-0" : "opacity-0 translate-y-50 pointer-events-none invisible"} duration-400 w-2xs h-68 top-18 transition-all right-8`}>

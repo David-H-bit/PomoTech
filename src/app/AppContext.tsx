@@ -14,6 +14,8 @@ type AppContextType = {
     audioTwoUrl: string;
     audioThreeUrl: string;
     selectedAudio: string;
+    startStopShortcut: string
+    AutoStartSessions: boolean;
     setColor1: (color: string) => void;
     setColor2: (color: string) => void;
     setColor3: (color: string) => void;
@@ -25,6 +27,8 @@ type AppContextType = {
     setAudioTwoUrl: (audio: string) => void;
     setAudioThreeUrl: (audio: string) => void;
     setSelectedAudio: (audio: string) => void;
+    setAutoStartSessions: (toggle: boolean) => void;
+    setStartStopShortcut: (shortcut: string) => void;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined)
@@ -41,9 +45,14 @@ export function AppProvider({children} : {children: ReactNode}){
     const [audioTwoUrl, setAudioTwoUrl] = useState("/sounds/soundTwo.wav");
     const [audioThreeUrl, setAudioThreeUrl] = useState("/sounds/soundThree.wav");
     const [selectedAudio, setSelectedAudio] = useState(audioOneUrl);
+    const [AutoStartSessions, setAutoStartSessions] = useState(false);
+    const [startStopShortcut, setStartStopShortcut] = useState("");
 
     return (
-    <AppContext.Provider value={{ color1, color2, color3, transparency, pomodoroTime, shortTime, longTime, audioOneUrl, audioTwoUrl, audioThreeUrl, selectedAudio, setColor1, setColor2, setColor3, setTransparency, setPomodoroTime, setLongTime, setShortTime, setAudioOneUrl, setAudioTwoUrl, setAudioThreeUrl, setSelectedAudio}}>
+    <AppContext.Provider value={{ color1, color2, color3, transparency, pomodoroTime, shortTime, longTime, audioOneUrl, audioTwoUrl,
+    audioThreeUrl, selectedAudio, AutoStartSessions, startStopShortcut, setColor1, setColor2, setColor3, setTransparency, 
+    setPomodoroTime, setLongTime, setShortTime, setAudioOneUrl, setAudioTwoUrl, setAudioThreeUrl, setSelectedAudio,
+    setAutoStartSessions, setStartStopShortcut}}>
       {children}
     </AppContext.Provider>
   );

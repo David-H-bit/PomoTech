@@ -36,7 +36,9 @@ export default function Home() {
   const [isEditing, setIsEditing] = useState(false);
   const [editTaskId, setEditTaskId] = useState<number | null>(null)
   const [selectedTaskId, setSelectedTaskId] = useState<number | null>(null) // This is for the TASK SPECIFIC pomodoros
-  const { color1, color2, color3, transparency, pomodoroTime, shortTime, longTime, selectedAudio, setColor1, setColor2, setColor3, setTransparency, setPomodoroTime, setLongTime, setShortTime } = useAppContext();
+  const { color1, color2, color3, transparency, pomodoroTime, shortTime, longTime, AutoStartSessions,
+  selectedAudio, startStopShortcut, setColor1, setColor2, setColor3, setTransparency, setPomodoroTime,
+  setLongTime, setShortTime, setAutoStartSessions, setStartStopShortcut } = useAppContext();
   const audioRef = useRef<any>(null) // TypeScript thinks Audio is a runtime value, not just a type, so using any here is 'okay'
 
   useEffect(() => {
@@ -71,6 +73,11 @@ export default function Home() {
       }
       else {setMode("pomodoro")};
     }
+    setTimeout(() => {
+      if (AutoStartSessions){
+        setIsRunning(true);
+      }
+    }, 200)
 
     return () => clearInterval(interval)
   }, [isRunning, timeLeft, mode])
@@ -85,6 +92,21 @@ export default function Home() {
     setTimeLeft(times[mode]);
     setIsRunning(false)
   }, [mode])
+
+  useEffect(() => {
+    if (!startStopShortcut) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (["INPUT", "TEXTAREA"].includes((document.activeElement?.tagName || "").toUpperCase())) return;
+
+      if (e.key === startStopShortcut){
+        e.preventDefault();
+        setIsRunning(prev => !prev)
+      }
+    }
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [startStopShortcut])
 
   const minutes = Math.floor(timeLeft / 60);
   const seconds = timeLeft % 60;
@@ -196,8 +218,8 @@ export default function Home() {
           </Button>
           <Button
             onClick={() => setTimeLeft(0)}
-            className={`absolute -right-20 duration-300 active:duration-0 bg-transparent hover:bg-black/20 cursor-pointer active:bg-black/40 ${
-              isRunning ? "opacity-100" : "opacity-0"
+            className={`absolute -right-20 duration-300 active:duration-0 bg-transparent hover:bg-black/20 cursor-pointer active:bg-black/40 ${   
+              isRunning ? "opacity-100" : "opacity-0 pointer-events-none"
             }`}>
             <img
               src="/fast-forward-button-svgrepo-com.svg"
@@ -289,11 +311,11 @@ export default function Home() {
             </Button>
           </div>
           <div className="absolute flex flex-row justify-between ml-2 bottom-0 mb-4 gap-8">
-            <Button className="flex items-center justify-center h-10 w-14 p-0 rounded border border-black bg-black/20 hover:bg-black/35 transition duration-75 cursor-pointer shadow-[0_2px_0_black] active:shadow-[0_0_0] active:translate-y-0.5"
+            <Button className="flex items-center justify-center h-10 w-14 p-0 rounded border border-black bg-white hover:bg-black/20 transition duration-75 cursor-pointer shadow-[0_2px_0_black] active:shadow-[0_0_0] active:translate-y-0.5"
             onClick={addTask}>
               <img src="save-svgrepo-com.svg" alt="save button" className="h-6"/>
             </Button>
-            <Button className="flex items-center justify-center h-10 w-14 p-0 rounded border border-black bg-black/20 hover:bg-black/35 transition duration-75 cursor-pointer shadow-[0_2px_0_black] active:shadow-[0_0_0] active:translate-y-0.5"
+            <Button className="flex items-center justify-center h-10 w-14 p-0 rounded border border-black bg-white hover:bg-black/20 transition duration-75 cursor-pointer shadow-[0_2px_0_black] active:shadow-[0_0_0] active:translate-y-0.5"
             onClick={cancelTask}>
               <img src="cancel2-svgrepo-com.svg" alt="cancel button" className="h-6"/>
             </Button>

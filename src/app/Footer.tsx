@@ -96,8 +96,8 @@ export default function Footer() {
               <a href="#" className="hover:text-gray-900 transition-colors">
                 Terms of Service
               </a>
-              <a href="#" className="hover:text-gray-900 transition-colors">
-                Contact
+              <a href="https://github.com/David-H-bit" target='_blank' className="hover:text-gray-900 transition-colors">
+                Github
               </a>
             </div>
           </div>
