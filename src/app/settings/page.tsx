@@ -9,25 +9,44 @@ import { Button } from "@/components/ui/button";
 export default function Settings() {
 
     const { color1, pomodoroTime, longTime, shortTime, transparency, audioOneUrl, audioTwoUrl, audioThreeUrl,
-    selectedAudio, startStopShortcut, setPomodoroTime, setLongTime, setShortTime,
+    selectedAudio, startStopShortcut, AutoStartSessions, setPomodoroTime, setLongTime, setShortTime,
     setSelectedAudio, setAutoStartSessions, setStartStopShortcut} = useAppContext();
     const audioRef = useRef<any>(null)
-    const [audioVolume, setAudioVolume] = useState(0.5);
+    const [audioVolume, setAudioVolume] = useState<number>(() => {
+      if (typeof window === "undefined") return 0.5;
+      const saved = localStorage.getItem("settingsData");
+      return saved ? JSON.parse(saved).audioVolume ?? 0.5 : 0.5;
+    });
     const [keysModal, setKeysModal] = useState(false);
 
     useEffect(() => {
-        if (typeof window === "undefined") return; // make sure we're on client
-        audioRef.current = new Audio(selectedAudio);
-      }, [selectedAudio])
+      if (typeof window === "undefined") return; // make sure we're on client
+      audioRef.current = new Audio(selectedAudio);
+      audioRef.current.volume = audioVolume
+    }, [selectedAudio])
 
-      useEffect(() => {
-        if (audioRef.current) audioRef.current.volume = audioVolume;
-      }, [audioVolume]);
+    useEffect(() => {
+      if (audioRef.current) audioRef.current.volume = audioVolume;
+    }, [audioVolume]);
+
+    useEffect(() => {
+    if (typeof window === "undefined") return;
+    const saved = localStorage.getItem("settingsData");
+    const data = saved ? JSON.parse(saved) : {};
+    localStorage.setItem(
+      "settingsData",
+      JSON.stringify({
+        ...data,
+        audioVolume,
+        selectedAudio,
+      })
+      );
+    }, [audioVolume, selectedAudio]);
 
     const selectAudio = (audio: string) => {
-      const newAudio = audio;
-      setSelectedAudio(newAudio);
-      audioRef.current.src = newAudio;
+      setSelectedAudio(audio);
+      if (!audioRef.current) return;
+      audioRef.current.src = audio;
       audioRef.current.play();
     }
 
@@ -80,7 +99,7 @@ export default function Settings() {
           <ul>
             <li className="flex flex-row w-1/3 justify-between items-center mb-2">
               <p className="text-lg">Auto-start next session</p>
-              <Switch onCheckedChange={setAutoStartSessions}/>
+              <Switch checked={AutoStartSessions} onCheckedChange={setAutoStartSessions}/>
             </li>
           </ul>
           </div>

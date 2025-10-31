@@ -1,6 +1,6 @@
 "use client"
 
-import { createContext, useContext, useState, ReactNode } from "react";
+import { createContext, useContext, useState, ReactNode, use, useEffect } from "react";
 
 type AppContextType = {
     color1: string;
@@ -23,9 +23,6 @@ type AppContextType = {
     setPomodoroTime: (time: number) => void;
     setShortTime: (time: number) => void;
     setLongTime: (time: number) => void;
-    setAudioOneUrl: (audio: string) => void;
-    setAudioTwoUrl: (audio: string) => void;
-    setAudioThreeUrl: (audio: string) => void;
     setSelectedAudio: (audio: string) => void;
     setAutoStartSessions: (toggle: boolean) => void;
     setStartStopShortcut: (shortcut: string) => void;
@@ -34,6 +31,9 @@ type AppContextType = {
 const AppContext = createContext<AppContextType | undefined>(undefined)
 
 export function AppProvider({children} : {children: ReactNode}){
+    const audioOneUrl = "/sounds/soundOne.wav";
+    const audioTwoUrl = "/sounds/soundTwo.wav";
+    const audioThreeUrl = "/sounds/soundThree.wav";
     const [color1, setColor1] = useState("#FF0000");
     const [color2, setColor2] = useState("#00FF00");
     const [color3, setColor3] = useState("#0000FF");
@@ -41,17 +41,37 @@ export function AppProvider({children} : {children: ReactNode}){
     const [pomodoroTime, setPomodoroTime] = useState(25 * 60);
     const [shortTime, setShortTime] = useState(5 * 60);
     const [longTime, setLongTime] = useState(10 * 60);
-    const [audioOneUrl, setAudioOneUrl] = useState("/sounds/soundOne.wav");
-    const [audioTwoUrl, setAudioTwoUrl] = useState("/sounds/soundTwo.wav");
-    const [audioThreeUrl, setAudioThreeUrl] = useState("/sounds/soundThree.wav");
     const [selectedAudio, setSelectedAudio] = useState(audioOneUrl);
     const [AutoStartSessions, setAutoStartSessions] = useState(false);
     const [startStopShortcut, setStartStopShortcut] = useState("");
 
+    useEffect(() => {
+      const saved = localStorage.getItem("appData");
+      if (!saved) return;
+      const data = JSON.parse(saved);
+
+      if (data.color1 !== undefined) setColor1(data.color1);
+      if (data.color2 !== undefined) setColor2(data.color2);
+      if (data.color3 !== undefined) setColor3(data.color3);
+      if (data.transparency !== undefined) setTransparency(data.transparency);
+      if (data.pomodoroTime !== undefined) setPomodoroTime(data.pomodoroTime);
+      if (data.shortTime !== undefined) setShortTime(data.shortTime);
+      if (data.longTime !== undefined) setLongTime(data.longTime);
+      if (data.selectedAudio !== undefined) setSelectedAudio(data.selectedAudio);
+      if (data.AutoStartSessions !== undefined) setAutoStartSessions(data.AutoStartSessions);
+      if (data.startStopShortcut !== undefined) setStartStopShortcut(data.startStopShortcut);
+    }, [])
+
+    useEffect(() => {
+      localStorage.setItem("appData", JSON.stringify({
+        color1, color2, color3, transparency, pomodoroTime, shortTime, longTime, selectedAudio, AutoStartSessions, startStopShortcut
+      }))
+    }, [color1, color2, color3, transparency, pomodoroTime, shortTime, longTime, selectedAudio, AutoStartSessions, startStopShortcut])
+
     return (
-    <AppContext.Provider value={{ color1, color2, color3, transparency, pomodoroTime, shortTime, longTime, audioOneUrl, audioTwoUrl,
-    audioThreeUrl, selectedAudio, AutoStartSessions, startStopShortcut, setColor1, setColor2, setColor3, setTransparency, 
-    setPomodoroTime, setLongTime, setShortTime, setAudioOneUrl, setAudioTwoUrl, setAudioThreeUrl, setSelectedAudio,
+    <AppContext.Provider value={{ color1, color2, color3, transparency, pomodoroTime, shortTime, longTime, selectedAudio, 
+    AutoStartSessions, startStopShortcut, audioOneUrl, audioTwoUrl, audioThreeUrl, setColor1, setColor2, setColor3, setTransparency, 
+    setPomodoroTime, setLongTime, setShortTime, setSelectedAudio,
     setAutoStartSessions, setStartStopShortcut}}>
       {children}
     </AppContext.Provider>

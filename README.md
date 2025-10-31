@@ -18,7 +18,6 @@ This is a personal learning project to explore and practice:
 
 ## Features
 
-### Current Implementation
 - Three timer modes: Pomodoro (25 min), Short Break (5 min), and Long Break (10 min)
 - Start/Stop timer functionality
 - Task list management (add and display tasks)
@@ -28,11 +27,8 @@ This is a personal learning project to explore and practice:
 - Task editing and deletion
 - Pomodoro completion tracking
 - Preferences tab and settings route
-
-### Work in Progress
-This project is a work in progress and is not done yet:
-- Local Storage does not work
-- Settings are pretty limited for now
+- Change your settings in the settings route
+- Local storage
 
 ## Technologies Used
 

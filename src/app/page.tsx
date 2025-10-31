@@ -22,11 +22,10 @@ type Task = {
   pomodorosFinished: number;
 }
 
-export default function Home() {
-  
-  const [timeLeft, setTimeLeft] = useState(25 * 60); // minutes * seconds
+export default function Home() { 
+  const [isInitialLoad, setIsInitialLoad] = useState(true);
+  const [timeLeft, setTimeLeft] = useState<number>(25 * 60)
   const [isRunning, setIsRunning] = useState(false);
-  const [isActive, setIsACtive] = useState(false) // for button styling
   const [mode, setMode] = useState<Mode>("pomodoro")
   const [showModal, setShowModal] = useState(false);
   const [taskName, setTaskName] = useState("");
@@ -45,6 +44,42 @@ export default function Home() {
     if (typeof window === "undefined") return; // make sure we're on client
     audioRef.current = new Audio(selectedAudio);
   }, [selectedAudio])
+
+  useEffect(() => {
+    const saved = localStorage.getItem("pageData");
+    if (!saved){
+      setIsInitialLoad(false);
+      return;
+    }
+    const data = JSON.parse(saved);
+
+    if (data.timeLeft !== undefined) setTimeLeft(data.timeLeft);
+    if (data.mode !== undefined) setMode(data.mode);
+    if (data.taskList !== undefined) setTaskList(data.taskList);
+    if (data.pomodorosDone !== undefined) setPomodorosDone(data.pomodorosDone);
+    if (data.selectedTaskId !== undefined) setSelectedTaskId(data.selectedTaskId);
+
+    setTimeout(() => {
+      const times = {
+        pomodoro: pomodoroTime,
+        short: shortTime,
+        long: longTime
+      };
+      const modeToUse = data.mode ?? "pomodoro";
+      if (data.timeLeft === undefined || !data.isRunning) {
+        setTimeLeft(times[modeToUse as Mode]);
+      }
+    }, 10);
+
+    setIsInitialLoad(false);
+  }, [pomodoroTime, shortTime, longTime])
+
+  useEffect(() => {
+    if (isInitialLoad) return; // Don't save until after initial load
+    localStorage.setItem("pageData", JSON.stringify({
+    mode, taskList, pomodorosDone, selectedTaskId, timeLeft
+    }))
+  }, [mode, taskList, pomodorosDone, selectedTaskId, timeLeft])
 
   useEffect(() => {
     if (!isRunning) return;
@@ -83,6 +118,8 @@ export default function Home() {
   }, [isRunning, timeLeft, mode])
 
   useEffect(() => {
+    if (isInitialLoad) return;
+
     const times = {
       pomodoro: pomodoroTime,
       short: shortTime,
@@ -91,7 +128,7 @@ export default function Home() {
 
     setTimeLeft(times[mode]);
     setIsRunning(false)
-  }, [mode])
+  }, [mode, pomodoroTime, shortTime, longTime])
 
   useEffect(() => {
     if (!startStopShortcut) return;
@@ -207,7 +244,7 @@ export default function Home() {
         </CardTitle>
       </CardHeader>
       <CardContent className="flex flex-col items-center">
-        <CardDescription className="text-8xl bold text-black">
+        <CardDescription className="text-8xl bold text-black" suppressHydrationWarning>
           {formatTime(minutes)}:{formatTime(seconds)}
         </CardDescription>
         <CardAction className="mb-2 mt-6 flex justify-center items-center relative">
